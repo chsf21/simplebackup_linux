@@ -47,7 +47,7 @@ backingup() {
 	for currentdir in ${backupdirs[@]}
 	do
 		echo "System backup on $currentdir"
-		filename=$(echo $currentdir | sed -i s+/+_+g)
+		filename=$(echo $currentdir | sed s+/+_+g)
 		if [ $currentdir = ~/ ]; then
 			# The exclude option of tar needs to be an absolute path if the target path is absolute. If the target path is relative, the exclude option should also use a relative path... https://unix.stackexchange.com/a/293338
 			# Also, if absolute paths are used, as is done in this script, there should be no trailing / after an excluded directory's path.
