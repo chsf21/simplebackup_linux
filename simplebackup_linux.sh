@@ -54,7 +54,7 @@ backingup() {
 			# Also, if absolute paths are used, as is done in this script, there should be no trailing / after an excluded directory's path.
 			cd ~/
 			homedir=$(pwd)
-			tar  -zcvf "$backupfolder/${filename}.tar.gz" --exclude=${homedir}/Music --exclude=${homedir}/.local/share/Trash --exclude=${homedir}/.cache $currentdir
+			tar  -zcvf "$backupfolder/${filename}.tar.gz" --exclude=${homedir}/Music --exclude=${homedir}/Videos --exclude=${homedir}/.local/share/Trash --exclude=${homedir}/.cache $currentdir
 		else
 			tar -zcvf "$backupfolder/${filename}.tar.gz" $currentdir
 		fi	
