@@ -41,6 +41,7 @@ if [[ -z ${backupdrive[@]} ]]; then
 fi
 
 # Save earlier specified directories as tar.gz files on the drive that is passed as an argument to the function. By default, the music directory will be excluded from the tar.gz archives and instead "synced" using rsync (The music directory is usually large and does not previous versions to be backed up.)
+# Although it would be more efficient to only use "tar" and "rsync" once--on the first drive specified--and then copy the generated files to all remaining drives, this is avoided due to the fact that many external harddrives will have trouble with large files being copied onto them due to the file systems they use.
 backingup() {
 	backupfolder="$1/$(date '+%F at %H-%M')"
 	mkdir "$backupfolder"
@@ -64,7 +65,13 @@ backingup() {
 	if [ ! -d ${1}/Music ]; then
 		mkdir ${1}/Music
 	fi
-	rsync -rv ~/Music/ ${1}/Music
+	rsync -rv --ignore-existing ~/Music/ ${1}/Music
+
+	echo "Syncing ~/Music"
+	if [ ! -d ${1}/Videos ]; then
+		mkdir ${1}/Videos
+	fi
+	rsync -rv --ignore-existing ~/Videos/ ${1}/Videos
 }
 
 # Call the backup function for all drives specified earlier
