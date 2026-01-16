@@ -65,13 +65,13 @@ backingup() {
 	if [ ! -d ${1}/Music ]; then
 		mkdir ${1}/Music
 	fi
-	rsync -rv --ignore-existing ~/Music/ ${1}/Music
+	rsync -arv --ignore-existing ~/Music/ ${1}/Music
 
 	echo "Syncing ~/Music"
 	if [ ! -d ${1}/Videos ]; then
 		mkdir ${1}/Videos
 	fi
-	rsync -rv --ignore-existing ~/Videos/ ${1}/Videos
+	rsync -arv --ignore-existing ~/Videos/ ${1}/Videos
 }
 
 # Call the backup function for all drives specified earlier
