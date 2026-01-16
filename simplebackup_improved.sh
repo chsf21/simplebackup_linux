@@ -42,15 +42,13 @@ if [[ -z ${backup_drives[@]} ]]; then
 	exit 0
 fi
 
-archive_files=()
-synced_dirs=()
 backup_date="$(date '+%F at %H-%M')"
 output_dirs=()
 
 # Save earlier specified directories as tar.gz files on the drive that is passed as an argument to the function. By default, the user's music and video directories will be excluded from the tar.gz archives and instead "synced" using rsync (These directories are usually large and may not require previous versions to be backed up)
 backingup() {
 	output_dir="$1/$backup_date"
-	output_dirs+=${output_dir}
+	output_dirs+=("${output_dir}")
 	mkdir "$output_dir"
 	for current_dir in ${backup_dirs[@]}
 	do
@@ -63,27 +61,11 @@ backingup() {
 			cd ~/
 			homedir=$(pwd)
 			tar -zcvf "${archive_path}" --exclude=${homedir}/Music --exclude=${homedir}/.local/share/Trash --exclude=${homedir}/.cache $current_dir
-			archive_files+=${archive_path}
 		else
-			tar -zcvf ${archive_path} $current_dir
-			archive_files+=${archive_path}
+			tar -zcvf "${archive_path}" $current_dir
 		fi	
 		sleep 2
 	done
-
-	echo "Syncing ~/Music"
-	if [ ! -d ${1}/Music ]; then
-		mkdir ${1}/Music
-	fi
-	rsync -rv --ignore-existing ~/Music/ ${1}/Music
-	synced_dirs+=${1}/Music
-
-	echo "Syncing ~/Videos"
-	if [ ! -d ${1}/Videos ]; then
-		mkdir ${1}/Videos
-	fi
-	rsync -rv --ignore-existing ~/Videos/ ${1}/Videos
-	synced_dirs+=${1}/Videos
 }
 
 # Call the backup function for the first drive that was specified by the user. 
@@ -92,22 +74,17 @@ echo "Backing up on drive: $drive"
 backingup "$drive"
 echo "Backup on $drive complete"
 
-# Copy archive files and synced directories that were created on the first drive over to the remaining drives.
-
+# Copy archive files created on the first drive over to the remaining drives. Sync directories.
 for drive in ${backup_drives[@]:1}
 do
-	echo "Backing up on drive: $drive"
-
+	echo "Backing up $drive"
 	for output_dir in "${output_dirs[@]}"
 	do
-		cp -r "$output_dir" "$drive"
+		cp -vr "$output_dir" "$drive"
 	done
-
-	for synced in ${synced_dirs[@]}
-	do
-		cp -r "$synced" "$drive"
-	done
-	echo "Backup on drive $drive complete"
+	rsync -avr --ignore-existing ~/Music ${drive}
+	rsync -avr --ignore-existing ~/Videos ${drive}
+	echo "Backup complete on $drive"
 done
 
 echo "All backups complete"
